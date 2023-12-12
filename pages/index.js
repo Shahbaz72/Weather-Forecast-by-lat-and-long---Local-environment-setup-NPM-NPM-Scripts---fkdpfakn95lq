@@ -7,6 +7,11 @@ export default function Home() {
 
   const handleForeCast = async (e) => {
     e.preventDefault();
+    if (isNaN(latitude) || isNaN(longitude)) {
+      console.error('Latitude and Longitude must be valid numbers');
+      return;
+    }
+  
     try {
       const data = await fetchData(latitude, longitude);
       setWeatherData(data);
