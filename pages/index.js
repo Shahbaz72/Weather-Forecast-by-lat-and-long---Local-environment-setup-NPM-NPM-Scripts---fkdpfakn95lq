@@ -7,11 +7,6 @@ export default function Home() {
 
   const handleForeCast = async (e) => {
     e.preventDefault();
-    if (isNaN(latitude) || isNaN(longitude)) {
-      console.error('Latitude and Longitude must be valid numbers');
-      return;
-    }
-  
     try {
       const data = await fetchData(latitude, longitude);
       setWeatherData(data);
@@ -20,6 +15,10 @@ export default function Home() {
     }
   };
   const fetchData = async (latitude, longitude) => {
+    if (isNaN(latitude) || isNaN(longitude)) {
+      console.error('Latitude and Longitude must be valid numbers');
+      return;
+    }
     const res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`)
     if (!res.ok) {
       throw new Error('Failed to fetch data');
