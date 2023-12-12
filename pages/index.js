@@ -9,15 +9,7 @@ export default function WeatherForecastApp() {
   // Fetch weather data
   const fetchWeatherData = async () => {
     try {
-       if(isNaN(latitude) || isNaN(longitude)){
-        return;
-       }
       const response = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
       const data = await response.json();
       setWeatherData(data);
     } catch (error) {
@@ -28,6 +20,9 @@ export default function WeatherForecastApp() {
   // Handle form submission
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    if(isNaN(latitude) || isNaN(longitude)){
+      return;
+     }
     fetchWeatherData();
   };
 
