@@ -1,27 +1,37 @@
 'use client'
 import { useState } from "react";
-export default function Home() {
-  const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')
-  const [weatherData, setWeatherData] = useState('')
+export default function WeatherForecastApp() {
+  // State variables
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
 
-  const handleForeCast = async (e) => {
-    e.preventDefault();
-   
+  // Fetch weather data
+  const fetchWeatherData = async () => {
     try {
-      const data = await fetchData(latitude, longitude);
+       if(isNaN(latitude) || isNaN(longitude)){
+        return;
+       }
+      const response = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const data = await response.json();
       setWeatherData(data);
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
   };
-  const fetchData = async (latitude, longitude) => {
-    if(isNaN(Number(latitude))||isNaN(Number(longitude))){
-      return
-    }
-    const res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`)
-    return res.json();
-  }
+
+  // Handle form submission
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    fetchWeatherData();
+  };
+
+  // Render table rows
   const renderTableRows = () => {
     if (!weatherData || !weatherData.properties || !weatherData.properties.timeseries) {
       return null;
@@ -43,27 +53,32 @@ export default function Home() {
       );
     });
   };
-  return (
-    <>
-      <div id="root">
-        <h1>Weather Forecast</h1>
-        <form onSubmit={handleForeCast}>
-          <label>Latitude<input type='text' className="latitude" value={latitude} onChange={(e) => setLatitude(e.target.value)} /></label>
-          <label>Longitude<input type='text' className="longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} /></label>
-          <button type="submit">Get Forecast</button>
-        </form>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Temperature (°C)</th>
-              <th>Summary</th>
-            </tr>
-          </thead>
-          <tbody>{renderTableRows()}</tbody>
-        </table>
-      </div>
-    </>
+  return (
+    <div id="root">
+      <h1>Weather Forecast</h1>
+      <form onSubmit={handleFormSubmit}>
+        <label>
+          Latitude:
+          <input type="text" className="latitude" value={latitude} onChange={(e) => setLatitude(e.target.value)} />
+        </label>
+        <label>
+          Longitude:
+          <input type="text" className="longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} />
+        </label>
+        <button type="submit">Get Forecast</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Temperature (°C)</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>{renderTableRows()}</tbody>
+      </table>
+    </div>
   );
 }
